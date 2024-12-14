@@ -4,33 +4,27 @@ import boto3
 from botocore.exceptions import ClientError
 
 
-class DynamoDB:
-    instance = None
+class AWSConfig:
+    def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, region_name=None):
+        self.aws_access_key_id = aws_access_key_id or os.getenv("AWS_ACCESS_KEY_ID")
+        self.aws_secret_access_key = aws_secret_access_key or os.getenv("AWS_SECRET_ACCESS_KEY")
+        self.region_name = region_name or os.getenv("REGION_NAME")
 
-    def __new__(cls):
-        if not isinstance(cls.instance, cls):
-            inst = super().__new__(cls)
-
-            inst.__dynamo_db_resource = boto3.resource(
-                service_name="dynamodb",
-                aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-                aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-                region_name=os.getenv("REGION_NAME")
-            )
-
-            cls.instance = inst
-        return cls.instance
-
-    def get_table(self, table_name: str):
-        return self.__dynamo_db_resource.Table(table_name)
+    def to_dict(self):
+        return {
+            "aws_access_key_id": self.aws_access_key_id,
+            "aws_secret_access_key": self.aws_secret_access_key,
+            "region_name": self.region_name
+        }
 
 
 class DynamoDBTable:
-    def __init__(self, table_name: str, dynamo_db: DynamoDB = DynamoDB()):
+    def __init__(self, table_name: str, config: AWSConfig = AWSConfig()):
         """
         Initialize a DynamoDB table interface.
         """
-        self.table = dynamo_db.get_table(table_name)
+        dynamodb = boto3.resource(service_name='dynamodb', **config.to_dict())
+        self.table = dynamodb.Table(table_name)
 
     def get_item(self, key: dict) -> dict:
         """
