@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from models.DynamoDB import DynamoDB
+from app.db.DynamoDB import DynamoDB
 from models.transaction import Transaction
 
 app = FastAPI()
