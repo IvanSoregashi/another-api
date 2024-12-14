@@ -2,7 +2,7 @@ import os
 
 import boto3
 
-from models.transaction import Transaction
+from app.models.transaction import Transaction
 
 
 class DynamoDB:
