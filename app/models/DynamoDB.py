@@ -2,6 +2,8 @@ import os
 
 import boto3
 
+from models.transaction import Transaction
+
 
 class DynamoDB:
     instance = None
@@ -19,3 +21,10 @@ class DynamoDB:
 
             cls.instance = inst
         return cls.instance
+
+    def put_transaction(self, transaction: Transaction):
+        table = self.__dynamo_db_resource.Table("Transactions")
+        table.put_item(Item=transaction.model_dump())
+
+    def get_table(self, table_name: str):
+        return self.__dynamo_db_resource.Table(table_name)
