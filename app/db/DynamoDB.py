@@ -1,7 +1,11 @@
 import os
-
+from functools import lru_cache
 import boto3
 from botocore.exceptions import ClientError
+
+
+class DynamoDBError(Exception):
+    pass
 
 
 class AWSConfig:
@@ -9,6 +13,9 @@ class AWSConfig:
         self.aws_access_key_id = aws_access_key_id or os.getenv("AWS_ACCESS_KEY_ID")
         self.aws_secret_access_key = aws_secret_access_key or os.getenv("AWS_SECRET_ACCESS_KEY")
         self.region_name = region_name or os.getenv("REGION_NAME")
+
+        if not self.aws_access_key_id or not self.aws_secret_access_key or not self.region_name:
+            raise ValueError("AWS credentials and region must be provided.")
 
     def to_dict(self):
         return {
@@ -18,12 +25,18 @@ class AWSConfig:
         }
 
 
+@lru_cache
+def get_dynamodb_resource(config: AWSConfig = None):
+    config = config or AWSConfig()
+    return boto3.resource(service_name="dynamodb", **config.to_dict())
+
+
 class DynamoDBTable:
-    def __init__(self, table_name: str, config: AWSConfig = AWSConfig()):
+    def __init__(self, table_name: str, dynamodb=None):
         """
         Initialize a DynamoDB table interface.
         """
-        dynamodb = boto3.resource(service_name='dynamodb', **config.to_dict())
+        dynamodb = dynamodb or get_dynamodb_resource()
         self.table = dynamodb.Table(table_name)
 
     def get_item(self, key: dict) -> dict:
@@ -34,7 +47,8 @@ class DynamoDBTable:
             response = self.table.get_item(Key=key)
             return response.get("Item", {})
         except ClientError as e:
-            raise Exception(f"Error getting item: {e.response['Error']['Message']}")
+            error_message = e.response["Error"]["Message"]
+            raise DynamoDBError(f"Error putting item: {error_message}")
 
     def put_item(self, item: dict) -> dict:
         """
@@ -42,9 +56,10 @@ class DynamoDBTable:
         """
         try:
             self.table.put_item(Item=item)
-            return {"message": "Item saved successfully."}
+            return item
         except ClientError as e:
-            raise Exception(f"Error putting item: {e.response['Error']['Message']}")
+            error_message = e.response["Error"]["Message"]
+            raise DynamoDBError(f"Error putting item: {error_message}")
 
     def delete_item(self, key: dict) -> dict:
         """
@@ -54,7 +69,8 @@ class DynamoDBTable:
             self.table.delete_item(Key=key)
             return {"message": "Item deleted successfully."}
         except ClientError as e:
-            raise Exception(f"Error deleting item: {e.response['Error']['Message']}")
+            error_message = e.response["Error"]["Message"]
+            raise DynamoDBError(f"Error putting item: {error_message}")
 
     def scan_table(self) -> list:
         """
@@ -64,4 +80,5 @@ class DynamoDBTable:
             response = self.table.scan()
             return response.get("Items", [])
         except ClientError as e:
-            raise Exception(f"Error scanning table: {e.response['Error']['Message']}")
+            error_message = e.response["Error"]["Message"]
+            raise DynamoDBError(f"Error putting item: {error_message}")
