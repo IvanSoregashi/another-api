@@ -2,6 +2,7 @@ import os
 from functools import lru_cache
 import boto3
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key
 
 
 class DynamoDBError(Exception):
@@ -49,6 +50,18 @@ class DynamoDBTable:
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
             raise DynamoDBError(f"Error putting item: {error_message}")
+
+    def get_items_that_start_with(self, key: str, value: str) -> dict:
+        """
+        Retrieve an item by its primary key.
+        """
+        try:
+            response = self.table.query(KeyConditionExpression=Key(key).begins_with(value))
+            return response.get("Items", [])
+        except ClientError as e:
+            error_message = e.response["Error"]["Message"]
+            raise DynamoDBError(f"Error putting item: {error_message}")
+
 
     def put_item(self, item: dict) -> dict:
         """

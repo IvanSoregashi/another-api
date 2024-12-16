@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 
 from app.db.DynamoDB import DynamoDBTable, DynamoDBError
-from app.use_cases.transaction import put_transaction
+from app.use_cases.transaction import put_transaction, get_dates_transactions
 from app.models.transaction import Transaction
 
 load_dotenv(".env")
@@ -17,11 +17,20 @@ async def root():
     return {"message": "Hello, World!"}
 
 
-@app.post("/transaction", response_model=Transaction)
+@app.post("/transactions", response_model=Transaction)
 async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
     try:
         item = put_transaction(repo, transaction)
         return item
+    except DynamoDBError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/transactions/{date}")
+async def get_transactions(date: str, repo=Depends(get_repo)):
+    try:
+        items = get_dates_transactions(repo, date)
+        return items
     except DynamoDBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
