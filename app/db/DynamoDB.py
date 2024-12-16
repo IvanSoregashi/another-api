@@ -62,7 +62,6 @@ class DynamoDBTable:
             error_message = e.response["Error"]["Message"]
             raise DynamoDBError(f"Error putting item: {error_message}")
 
-
     def put_item(self, item: dict) -> dict:
         """
         Insert or overwrite an item.
