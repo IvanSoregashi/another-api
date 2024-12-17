@@ -69,6 +69,19 @@ class TestDynamoDBTable(TestCase):
         mock_table.query.assert_called_once_with(KeyConditionExpression=Key("month").eq("TEST"))
         self.assertEqual(response, [{"month": "TEST", "transaction_id": 3}])
 
+    def test_query_item_empty_response(self):
+        dynamodb = Mock()
+        mock_table = Mock()
+        mock_table.query.return_value = {"Items": []}
+        dynamodb.Table.return_value = mock_table
+
+        table = DynamoDBTable("Test", dynamodb)
+
+        response = table.query_items("month", "TEST")
+
+        mock_table.query.assert_called_once_with(KeyConditionExpression=Key("month").eq("TEST"))
+        self.assertEqual(response, [])
+
     def test_put_item(self):
         dynamodb = Mock()
         mock_table = Mock()

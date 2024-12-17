@@ -5,9 +5,9 @@ def put_transaction(repo, transaction: Transaction) -> dict:
     return repo.put_item(transaction.model_dump())
 
 
-def get_transaction(repo, datetime: str) -> dict:
-    return repo.get_item({"datetime": datetime})
+def get_transaction(repo, month: str, transaction_id: str) -> dict:
+    return repo.get_item({"month": month, "transaction_id": transaction_id})
 
 
-def get_dates_transactions(repo, date: str) -> dict:
-    return repo.get_items_that_start_with("datetime", date)
+def query_transactions(repo, month: str) -> list:
+    return repo.query_items("month", month)
