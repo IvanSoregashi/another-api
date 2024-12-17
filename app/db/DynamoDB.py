@@ -51,12 +51,12 @@ class DynamoDBTable:
             error_message = e.response["Error"]["Message"]
             raise DynamoDBError(f"Error putting item: {error_message}")
 
-    def get_items_that_start_with(self, key: str, value: str) -> dict:
+    def query_items(self, key: str, value: str) -> dict:
         """
-        Retrieve an item by its primary key.
+        Query items by primary key.
         """
         try:
-            response = self.table.query(KeyConditionExpression=Key(key).begins_with(value))
+            response = self.table.query(KeyConditionExpression=Key(key).eq(value))
             return response.get("Items", [])
         except ClientError as e:
             error_message = e.response["Error"]["Message"]

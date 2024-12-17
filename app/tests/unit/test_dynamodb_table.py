@@ -1,6 +1,8 @@
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
+from boto3.dynamodb.conditions import Key
+
 from app.db.DynamoDB import DynamoDBTable#, Key
 
 
@@ -31,15 +33,41 @@ class TestDynamoDBTable(TestCase):
     def test_get_item(self):
         dynamodb = Mock()
         mock_table = Mock()
-        mock_table.get_item.return_value = {"Item": {"datetime": "TEST", "lol": 3}}
+        mock_table.get_item.return_value = {"Item": {"month": "TEST", "transaction_id": 3}}
         dynamodb.Table.return_value = mock_table
 
         table = DynamoDBTable("Test", dynamodb)
 
-        response = table.get_item({"datetime": "TEST"})
+        response = table.get_item({"month": "TEST"})
 
-        mock_table.get_item.assert_called_once_with(Key={"datetime": "TEST"})
-        self.assertEqual(response, {"datetime": "TEST", "lol": 3})
+        mock_table.get_item.assert_called_once_with(Key={"month": "TEST"})
+        self.assertEqual(response, {"month": "TEST", "transaction_id": 3})
+
+    def test_get_item_empty_response(self):
+        dynamodb = Mock()
+        mock_table = Mock()
+        mock_table.get_item.return_value = {"Item": {}}
+        dynamodb.Table.return_value = mock_table
+
+        table = DynamoDBTable("Test", dynamodb)
+
+        response = table.get_item({"month": "TEST"})
+
+        mock_table.get_item.assert_called_once_with(Key={"month": "TEST"})
+        self.assertEqual(response, {})
+
+    def test_query_item(self):
+        dynamodb = Mock()
+        mock_table = Mock()
+        mock_table.query.return_value = {"Items": [{"month": "TEST", "transaction_id": 3}]}
+        dynamodb.Table.return_value = mock_table
+
+        table = DynamoDBTable("Test", dynamodb)
+
+        response = table.query_items("month", "TEST")
+
+        mock_table.query.assert_called_once_with(KeyConditionExpression=Key("month").eq("TEST"))
+        self.assertEqual(response, [{"month": "TEST", "transaction_id": 3}])
 
     def test_put_item(self):
         dynamodb = Mock()
@@ -48,7 +76,7 @@ class TestDynamoDBTable(TestCase):
 
         table = DynamoDBTable("Test", dynamodb)
 
-        response = table.put_item({"datetime": "TEST"})
+        response = table.put_item({"month": "TEST"})
 
-        mock_table.put_item.assert_called_once_with(Item={"datetime": "TEST"})
-        self.assertEqual(response, {"datetime": "TEST"})
+        mock_table.put_item.assert_called_once_with(Item={"month": "TEST"})
+        self.assertEqual(response, {"month": "TEST"})
