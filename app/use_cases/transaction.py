@@ -6,7 +6,7 @@ def put_transaction(repo, transaction: Transaction) -> dict:
 
 
 def get_transaction(repo, month: str, transaction_id: str) -> dict:
-    return repo.get_item({"month": month, "transaction_id": transaction_id})
+    return repo.pull_item({"month": month, "transaction_id": transaction_id})
 
 
 def query_transactions(repo, month: str) -> list:

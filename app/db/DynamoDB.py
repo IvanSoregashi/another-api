@@ -40,7 +40,7 @@ class DynamoDBTable:
         dynamodb = dynamodb or get_dynamodb_resource()
         self.table = dynamodb.Table(table_name)
 
-    def get_item(self, key: dict) -> dict:
+    def pull_item(self, key: dict) -> dict:
         """
         Retrieve an item by its primary key.
         """
