@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, call
 
 from boto3.dynamodb.conditions import Key
 
@@ -13,20 +13,17 @@ class TestDynamoDBTable(TestCase):
         self.TABLE = DynamoDBTable("Test", self.dynamodb)
 
     def test_table_initialization_with_db_arg(self):
-        table = DynamoDBTable("Test", self.dynamodb)
-
         self.dynamodb.Table.assert_called_with("Test")
         self.dynamodb.Table.assert_called_once()
-        self.assertEqual(table.table, self.dynamodb.Table.return_value)
+        self.assertEqual(self.TABLE.table, self.mock_table)
 
     @patch("app.db.DynamoDB.get_dynamodb_resource")
     def test_table_initialization_without_db_arg(self, mock_get_resource):
         mock_get_resource.return_value = self.dynamodb
 
-        table = DynamoDBTable("Test")
+        table = DynamoDBTable("Test2")
 
-        self.dynamodb.Table.assert_called_with("Test")
-        self.dynamodb.Table.assert_called_once()
+        self.dynamodb.Table.assert_has_calls([call('Test'), call('Test2')])
         self.assertEqual(table.table, self.dynamodb.Table.return_value)
 
     def test_get_item(self):
@@ -68,9 +65,37 @@ class TestDynamoDBTable(TestCase):
         self.assertEqual(response, {"month": "TEST"})
 
     def test_delete_item(self):
-        self.mock_table.delete_item.return_value = {"Item": {"month": "TEST", "transaction_id": 3}}
-
-        response = self.TABLE.delete_item({"month": "TEST"})
-
+        self.TABLE.delete_item({"month": "TEST"})
         self.mock_table.delete_item.assert_called_once_with(Key={"month": "TEST"})
-        self.assertEqual(response, {"month": "TEST", "transaction_id": 3})
+
+    def test_scan_empty_table(self):
+        self.mock_table.scan.return_value = {"Items": []}
+
+        response = self.TABLE.scan_table({})
+
+        self.mock_table.scan.assert_called_once_with()
+        self.assertEqual(response, [])
+
+    def test_scan_full_table(self):
+        self.mock_table.scan.return_value = {"Items": [1, 2]}
+
+        response = self.TABLE.scan_table({})
+
+        self.mock_table.scan.assert_called_once_with()
+        self.assertEqual(response, [1, 2])
+
+    def test_scan_table_with_one_filter(self):
+        self.mock_table.scan.return_value = {"Items": [1, 2]}
+
+        response = self.TABLE.scan_table({"amount": 95})
+
+        self.mock_table.scan.assert_called_once_with(FilterExpression=Key("amount").eq(95))
+        self.assertEqual(response, [1, 2])
+
+    def test_scan_table_with_two_filters(self):
+        self.mock_table.scan.return_value = {"Items": [1, 2]}
+
+        response = self.TABLE.scan_table({"amount": 95, "Type": "Expense"})
+
+        self.mock_table.scan.assert_called_once_with(FilterExpression=Key("amount").eq(95) & Key("Type").eq("Expense"))
+        self.assertEqual(response, [1, 2])

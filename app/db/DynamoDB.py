@@ -1,8 +1,8 @@
 import os
-from functools import lru_cache
+from functools import lru_cache, reduce
 import boto3
 from botocore.exceptions import ClientError
-from boto3.dynamodb.conditions import Key
+from boto3.dynamodb.conditions import Key, And
 
 
 class DynamoDBError(Exception):
@@ -73,24 +73,26 @@ class DynamoDBTable:
             error_message = e.response["Error"]["Message"]
             raise DynamoDBError(f"Error putting item: {error_message}")
 
-    def delete_item(self, key: dict) -> dict:
+    def delete_item(self, key: dict) -> None:
         """
         Delete an item by its primary key.
         """
         try:
             self.table.delete_item(Key=key)
-            return {"message": "Item deleted successfully."}
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
             raise DynamoDBError(f"Error putting item: {error_message}")
 
-    def scan_table(self) -> list:
+    def scan_table(self, filters: dict) -> list:
         """
         Scan the table and return all items.
         """
+        # Should I add Limit???
         try:
-            response = self.table.scan()
+            filters = {"FilterExpression": reduce(And, ([Key(k).eq(v) for k, v in filters.items()]))} if filters else {}
+            response = self.table.scan(**filters)
             return response.get("Items", [])
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
             raise DynamoDBError(f"Error putting item: {error_message}")
+

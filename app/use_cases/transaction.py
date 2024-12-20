@@ -11,3 +11,7 @@ def get_transaction(repo, month: str, transaction_id: str) -> dict:
 
 def query_transactions(repo, month: str) -> list:
     return repo.query_items("month", month)
+
+
+def delete_transaction(repo, month: str, transaction_id: str) -> None:
+    return repo.delete_item({"month": month, "transaction_id": transaction_id})

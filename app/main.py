@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 
 from app.db.DynamoDB import DynamoDBTable, DynamoDBError
-from app.use_cases.transaction import put_transaction, get_dates_transactions
+from app.use_cases.transaction import put_transaction, get_transaction
 from app.models.transaction import Transaction
 
 load_dotenv(".env")
@@ -29,7 +29,7 @@ async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
 @app.get("/transactions/{date}")
 async def get_transactions(date: str, repo=Depends(get_repo)):
     try:
-        items = get_dates_transactions(repo, date)
+        items = get_transaction(repo, date)
         return items
     except DynamoDBError as e:
         raise HTTPException(status_code=500, detail=str(e))
