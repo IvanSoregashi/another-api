@@ -9,7 +9,7 @@ from app.models.transaction import Transaction
 load_dotenv(".env")
 
 app = FastAPI()
-async def get_repo(): return DynamoDBTable("Transactions")
+async def get_repo() -> DynamoDBTable: return DynamoDBTable("Transactions")
 
 
 @app.get("/")
