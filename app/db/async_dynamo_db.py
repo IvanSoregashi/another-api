@@ -46,9 +46,8 @@ class AWS:
 
     async def get_async_resource(self, resource_name):
         if self.resources.get(resource_name):
-            return self.resources.get(resource_name)
+            return self.resources[resource_name]
         session = aioboto3.Session(**self.instance.to_dict())
-        #dynamodb = await session.resource(service_name=resource_name).__aenter__()
         resource = await self.stack.enter_async_context(session.resource(resource_name))
         self.resources[resource_name] = resource
         return resource
@@ -66,8 +65,8 @@ class DynamoDBTable:
         self.table = table
 
     @classmethod
-    async def named(cls, table_name: str) -> Self:
-        dynamodb = await AWS().get_async_resource("dynamodb")
+    async def named(cls, aws_object: AWS, table_name: str) -> Self:
+        dynamodb = await aws_object.get_async_resource("dynamodb")
         table = await dynamodb.Table(table_name)
         return cls(table)
 

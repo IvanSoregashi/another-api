@@ -14,8 +14,8 @@ load_dotenv(".env")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # TODO: Modify resource management. Right now, table is called on ddb instance every request
-    yield
     aws = AWS()
+    yield
     await aws.cleanup()
 
 
@@ -23,7 +23,9 @@ app = FastAPI(lifespan=lifespan)
 
 
 async def get_repo() -> DynamoDBTable:
-    return await DynamoDBTable.named("Transactions")
+    # TODO: Do something about this. Just not the ugly dependency injection chain.
+    aws = AWS()
+    return await DynamoDBTable.named(aws, "Transactions")
 
 
 @app.get("/")
