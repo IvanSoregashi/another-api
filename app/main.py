@@ -1,14 +1,25 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 
-from app.db.async_dynamo_db import DynamoDBTable, DynamoDBError
+from app.db.async_dynamo_db import DynamoDBTable, DynamoDBError, AWS
 from app.use_cases.transaction import put_transaction, get_transaction
 from app.models.transaction import Transaction
 
 load_dotenv(".env")
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # TODO: Modify resource management. Right now, table is called on ddb instance every request
+    yield
+    aws = AWS()
+    await aws.cleanup()
+
+
+app = FastAPI(lifespan=lifespan)
 
 
 async def get_repo() -> DynamoDBTable:
