@@ -1,8 +1,8 @@
 from app.models.transaction import Transaction
 
 
-def put_transaction(repo, transaction: Transaction) -> dict:
-    return repo.put_item(transaction.model_dump())
+async def put_transaction(repo, transaction: Transaction) -> dict:
+    return await repo.put_item(transaction.model_dump())
 
 
 def get_transaction(repo, month: str, transaction_id: str) -> dict:
