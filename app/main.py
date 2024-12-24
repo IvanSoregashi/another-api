@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 
 from app.db.async_dynamo_db import DynamoDBTable, DynamoDBError, AWS
-from app.use_cases.transaction import put_transaction, get_transaction, query_transactions
+from app.use_cases.transaction import put_transaction, get_transaction, query_transactions, delete_transaction
 from app.models.transaction import Transaction
 
 load_dotenv(".env")
@@ -56,6 +56,34 @@ async def get_monthly_transactions(month: str, repo=Depends(get_repo)):
     try:
         items = await query_transactions(repo, month)
         return items
+    except DynamoDBError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get(
+    "/transactions/{month}/{transaction_id}",
+    tags=["Transactions"],
+    response_model=Transaction,
+    summary="Get a single transaction"
+)
+async def get_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
+    try:
+        item = await get_transaction(repo, month, transaction_id)
+        return item
+    except DynamoDBError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete(
+    "/transactions/{month}/{transaction_id}",
+    tags=["Transactions"],
+    summary="Delete a single transaction",
+    status_code=204
+)
+async def get_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
+    try:
+        item = await delete_transaction(repo, month, transaction_id)
+        return item
     except DynamoDBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
