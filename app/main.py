@@ -52,7 +52,7 @@ async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
     tags=["Transactions"],
     summary="Get all transactions for the month"
 )
-async def get_monthly_transactions(month: str, repo=Depends(get_repo)):
+async def get_monthly_transactions(month: str, repo=Depends(get_repo)) -> list[Transaction]:
     try:
         items = await query_transactions(repo, month)
         return items
