@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 
 from app.db.async_dynamo_db import DynamoDBTable, DynamoDBError, AWS
-from app.use_cases.transaction import put_transaction, get_transaction
+from app.use_cases.transaction import put_transaction, get_transaction, query_transactions
 from app.models.transaction import Transaction
 
 load_dotenv(".env")
@@ -33,7 +33,12 @@ async def root():
     return {"message": "Hello, World!"}
 
 
-@app.post("/transactions", response_model=Transaction)
+@app.post(
+    "/transactions",
+    tags=["Transactions"],
+    response_model=Transaction,
+    summary="Report transaction"
+)
 async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
     try:
         item = await put_transaction(repo, transaction)
@@ -42,10 +47,14 @@ async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/transactions/{date}")
-async def get_transactions(date: str, repo=Depends(get_repo)):
+@app.get(
+    "/transactions/{month}",
+    tags=["Transactions"],
+    summary="Get all transactions for the month"
+)
+async def get_monthly_transactions(month: str, repo=Depends(get_repo)):
     try:
-        items = get_transaction(repo, date)
+        items = await query_transactions(repo, month)
         return items
     except DynamoDBError as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -15,6 +15,7 @@ class Transaction(BaseModel):
     amount: Decimal
     category: Optional[str] = None
     point: str
+    item: Optional[str] = None
     comment: Optional[str] = None
 
     def model_post_init(self, __context):
