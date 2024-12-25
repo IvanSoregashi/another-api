@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from app.models.transaction import Transaction
-from app.use_cases.transaction import query_transactions, put_transaction, get_transaction, delete_transaction
+from app.use_cases.transaction import query_transactions, put_transaction, get_transaction, delete_transaction, scan_transactions
 
 
 @pytest.fixture
@@ -46,3 +46,12 @@ async def test_delete_transaction(repo):
 
     repo.delete_item.assert_called_once_with({"month": "test", "transaction_id": "test uuid"})
     assert result == {"test": "test value"}
+
+
+async def test_scan_transaction(repo):
+    repo.scan_table.return_value = [{"test": "test value", "amount": 100}]
+
+    result = await scan_transactions(repo, {"amount": 100})
+
+    repo.scan_table.assert_called_once_with({"amount": 100})
+    assert result == [{"test": "test value", "amount": 100}]

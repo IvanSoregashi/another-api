@@ -1,12 +1,14 @@
 from contextlib import asynccontextmanager
+from typing import Annotated
 
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, Query, HTTPException
 
 from app.db.async_dynamo_db import DynamoDBTable, DynamoDBError, AWS
-from app.use_cases.transaction import put_transaction, get_transaction, query_transactions, delete_transaction
-from app.models.transaction import Transaction
+from app.use_cases.transaction import put_transaction, get_transaction, query_transactions, delete_transaction, \
+    scan_transactions
+from app.models.transaction import Transaction, TransactionQuery
 
 load_dotenv(".env")
 
@@ -33,16 +35,18 @@ async def root():
     return {"message": "Hello, World!"}
 
 
-@app.post(
-    "/transactions",
+@app.get(
+    "/transactions/",
     tags=["Transactions"],
-    response_model=Transaction,
-    summary="Report transaction"
+    summary="Get all transactions, optionally filtered"
 )
-async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
+async def scan_all_transactions(
+        filter_query: Annotated[TransactionQuery, Query()] = None,
+        repo=Depends(get_repo)
+) -> list[Transaction]:
     try:
-        item = await put_transaction(repo, transaction)
-        return item
+        items = await scan_transactions(repo, filter_query)
+        return items
     except DynamoDBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -74,6 +78,20 @@ async def get_single_transaction(month: str, transaction_id: str, repo=Depends(g
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.post(
+    "/transactions",
+    tags=["Transactions"],
+    response_model=Transaction,
+    summary="Report transaction"
+)
+async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
+    try:
+        item = await put_transaction(repo, transaction)
+        return item
+    except DynamoDBError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.delete(
     "/transactions/{month}/{transaction_id}",
     tags=["Transactions"],
@@ -89,4 +107,4 @@ async def get_single_transaction(month: str, transaction_id: str, repo=Depends(g
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, port=8080, host='0.0.0.0')
+    uvicorn.run(app, reload=True, port=8080, host='0.0.0.0')

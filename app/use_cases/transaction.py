@@ -1,4 +1,4 @@
-from app.models.transaction import Transaction
+from app.models.transaction import Transaction, TransactionQuery
 
 
 async def query_transactions(repo, month: str) -> list:
@@ -15,3 +15,8 @@ async def get_transaction(repo, month: str, transaction_id: str) -> dict:
 
 async def delete_transaction(repo, month: str, transaction_id: str) -> None:
     return await repo.delete_item({"month": month, "transaction_id": transaction_id})
+
+
+async def scan_transactions(repo, filters: TransactionQuery) -> list[Transaction]:
+    filters = {k: v for k, v in filters.model_dump().items() if v}
+    return await repo.scan_table(filters)
