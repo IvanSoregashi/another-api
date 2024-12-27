@@ -30,14 +30,10 @@ async def get_repo() -> DynamoDBTable:
     return await DynamoDBTable.named(aws, "Transactions")
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello, World!"}
-
-
 @app.get(
-    "/transactions/",
+    "/transactions",
     tags=["Transactions"],
+    response_model=list[Transaction],
     summary="Get all transactions, optionally filtered"
 )
 async def scan_all_transactions(
@@ -54,9 +50,13 @@ async def scan_all_transactions(
 @app.get(
     "/transactions/{month}",
     tags=["Transactions"],
+    response_model=list[Transaction],
     summary="Get all transactions for the month"
 )
-async def get_monthly_transactions(month: str, repo=Depends(get_repo)) -> list[Transaction]:
+async def query_monthly_transactions(
+        month: str,
+        repo=Depends(get_repo)
+) -> list[Transaction]:
     try:
         items = await query_transactions(repo, month)
         return items
@@ -73,6 +73,7 @@ async def get_monthly_transactions(month: str, repo=Depends(get_repo)) -> list[T
 async def get_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
     try:
         item = await get_transaction(repo, month, transaction_id)
+        if not item: raise HTTPException(status_code=404, detail="Item not found")
         return item
     except DynamoDBError as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -98,7 +99,7 @@ async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
     summary="Delete a single transaction",
     status_code=204
 )
-async def get_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
+async def delete_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
     try:
         item = await delete_transaction(repo, month, transaction_id)
         return item

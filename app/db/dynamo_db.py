@@ -1,3 +1,4 @@
+"""Pretty much depreciated"""
 import os
 from functools import lru_cache, reduce
 import boto3
