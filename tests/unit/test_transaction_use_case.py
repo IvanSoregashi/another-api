@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.models.transaction import Transaction
+from app.models.transaction import Transaction, TransactionQuery
 from app.use_cases.transaction import query_transactions, put_transaction, get_transaction, delete_transaction, scan_transactions
 
 
@@ -49,9 +49,12 @@ async def test_delete_transaction(repo):
 
 
 async def test_scan_transaction(repo):
-    repo.scan_table.return_value = [{"test": "test value", "amount": 100}]
+    # TODO This one will be modified and will need a lot more testing.
+    # TODO Opportunity for TDD?
+    repo.scan_table.return_value = [{"test": "test value", "amount": 100, "type": "Transfer"}]
 
-    result = await scan_transactions(repo, {"amount": 100})
+    model = TransactionQuery.model_validate({"type": "Transfer"})
+    result = await scan_transactions(repo, model)
 
-    repo.scan_table.assert_called_once_with({"amount": 100})
-    assert result == [{"test": "test value", "amount": 100}]
+    repo.scan_table.assert_called_once_with({"type": "Transfer"})
+    assert result == [{"test": "test value", "amount": 100, "type": "Transfer"}]
