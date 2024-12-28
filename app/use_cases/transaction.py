@@ -20,4 +20,3 @@ async def get_transaction(repo, month: str, transaction_id: str) -> dict:
 
 async def delete_transaction(repo, month: str, transaction_id: str) -> None:
     return await repo.delete_item({"month": month, "transaction_id": transaction_id})
-
