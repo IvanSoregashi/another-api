@@ -2,7 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app, get_repo
+from app.main import app
+from app.routers.transactions import get_repo
 
 client = TestClient(app)
 
@@ -226,7 +227,7 @@ def test_create_correct_transaction(test_repo):
 
     test_repo.put_item.assert_awaited_once_with(data)
 
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert response.json() == {
         "month": "2024-12",
         "transaction_id": "f1bf8fed-8cb5-4403-a3a1-7b2df262182b",

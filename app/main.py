@@ -5,11 +5,11 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 
 from app.db.async_dynamo_db import AWS
-from app.routers.transaction import transactions_router
+from app.routers.transactions import transactions_router
 
 load_dotenv(".env")
 
-# TODO will need to double check at some point precise behaviour of creting tables / connections to db
+# TODO will need to double check at some point precise behaviour of creating tables / connections to db
 """
 @asynccontextmanager
 async def lifespan(app: FastAPI):

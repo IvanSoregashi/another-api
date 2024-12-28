@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.models.transaction import Transaction, TransactionQuery
-from app.use_cases.transaction import query_transactions, put_transaction, get_transaction, delete_transaction, scan_transactions
+from app.models.transactions import Transaction, TransactionQuery
+from app.use_cases.transactions import query_transactions, put_transaction, get_transaction, delete_transaction, scan_transactions
 
 
 @pytest.fixture

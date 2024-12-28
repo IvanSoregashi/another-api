@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.db.async_dynamo_db import DynamoDBError, DynamoDBTable, AWS
-from app.use_cases.transaction import *
+from app.use_cases.transactions import *
 
 transactions_router = APIRouter(prefix="/transactions")
 
@@ -68,6 +68,7 @@ async def get_single_transaction(month: str, transaction_id: str, repo=Depends(g
     "",
     tags=["Transactions"],
     response_model=Transaction,
+    status_code=201,
     summary="Report transaction"
 )
 async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
