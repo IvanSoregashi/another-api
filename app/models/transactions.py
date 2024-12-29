@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import Optional, Literal, Type, Any
 from decimal import Decimal
-from pydantic import BaseModel, Field, create_model
+from pydantic import BaseModel, UUID4, Field, create_model
 from pydantic.fields import FieldInfo
 
 from app.utils import timestamp, current_year_month
@@ -19,9 +19,9 @@ class TransactionId(BaseModel):
 
 
 class Transaction(BaseModel):
-    month: str | None = None  # Field(default_factory=current_year_month, description="Date in YYYY-MM format")
     transaction_id: str | None = Field(default_factory=lambda: str(uuid4()),
-                                          description="Unique transaction identifier")
+                                         description="Unique transaction identifier")
+    month: str | None = None  # Field(default_factory=current_year_month, description="Date in YYYY-MM format")
     datetime: str | None = Field(default_factory=timestamp, description="Timestamp in ISO format, UTC TimeZone")
     type: str
     account: str

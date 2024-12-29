@@ -1,10 +1,7 @@
-from contextlib import asynccontextmanager
-
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-from app.db.async_dynamo_db import AWS
 from app.routers.transactions import transactions_router
 
 load_dotenv(".env")

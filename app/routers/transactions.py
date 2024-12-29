@@ -1,18 +1,22 @@
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.db.async_dynamo_db import DynamoDBError, DynamoDBTable, AWS
-from app.use_cases.transactions import *
+# from app.db.async_dynamo_db import DBError, DynamoDBTable, AWS
+# from app.db.aiosqlite_sql import DBError, SQLiteRepository
+from app.db.aiosqlite_sqlalchemy import SQLAlchemyRepository, DBError, DatabaseSessionManager, TransactionORM
+
+from app.models.transactions import Transaction, TransactionQuery
+from app.use_cases.transactions import TransactionService
 
 transactions_router = APIRouter(prefix="/transactions")
 
+session_manager = DatabaseSessionManager("sqlite+aiosqlite:///data.db")
+sqlite_repository = SQLAlchemyRepository(TransactionORM, session_manager)
+transactions_service = TransactionService(sqlite_repository)
 
-async def get_repo() -> DynamoDBTable:
-    # TODO: Do something about this. Just not the ugly dependency injection chain.
-    aws = AWS()
-    yield await DynamoDBTable.named(aws, "Transactions")
-    await aws.cleanup()
+
+async def get_service() -> TransactionService:
+    yield transactions_service
 
 
 @transactions_router.get(
@@ -23,12 +27,12 @@ async def get_repo() -> DynamoDBTable:
 )
 async def scan_all_transactions(
         filter_query: Annotated[TransactionQuery, Query()] = None,
-        repo=Depends(get_repo)
+        service: TransactionService = Depends(get_service)
 ) -> list[Transaction]:
     try:
-        items = await scan_transactions(repo, filter_query)
+        items = await service.scan(filter_query)
         return items
-    except DynamoDBError as e:
+    except DBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -40,12 +44,12 @@ async def scan_all_transactions(
 )
 async def query_monthly_transactions(
         month: str,
-        repo=Depends(get_repo)
+        service: TransactionService = Depends(get_service)
 ) -> list[Transaction]:
     try:
-        items = await query_transactions(repo, month)
+        items = await service.query(month)
         return items
-    except DynamoDBError as e:
+    except DBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -55,12 +59,16 @@ async def query_monthly_transactions(
     response_model=Transaction,
     summary="Get a single transaction"
 )
-async def get_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
+async def get_single_transaction(
+        month: str,
+        transaction_id: str,
+        service: TransactionService = Depends(get_service)
+) -> dict:
     try:
-        item = await get_transaction(repo, month, transaction_id)
+        item = await service.get(month, transaction_id)
         if not item: raise HTTPException(status_code=404, detail="Item not found")
         return item
-    except DynamoDBError as e:
+    except DBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -71,11 +79,14 @@ async def get_single_transaction(month: str, transaction_id: str, repo=Depends(g
     status_code=201,
     summary="Report transaction"
 )
-async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
+async def create_transaction(
+        transaction: Transaction,
+        service: TransactionService = Depends(get_service)
+):
     try:
-        item = await put_transaction(repo, transaction)
+        item = await service.put(transaction)
         return item
-    except DynamoDBError as e:
+    except DBError as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -85,9 +96,13 @@ async def create_transaction(transaction: Transaction, repo=Depends(get_repo)):
     summary="Delete a single transaction",
     status_code=204
 )
-async def delete_single_transaction(month: str, transaction_id: str, repo=Depends(get_repo)):
+async def delete_single_transaction(
+        month: str,
+        transaction_id: str,
+        service: TransactionService = Depends(get_service)
+):
     try:
-        item = await delete_transaction(repo, month, transaction_id)
+        item = await service.delete(month, transaction_id)
         return item
-    except DynamoDBError as e:
+    except DBError as e:
         raise HTTPException(status_code=500, detail=str(e))
