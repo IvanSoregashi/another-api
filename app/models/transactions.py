@@ -1,10 +1,8 @@
-from copy import deepcopy
-from typing import Optional, Literal, Type, Any
+from typing import Literal
 from decimal import Decimal
-from pydantic import BaseModel, UUID4, Field, create_model
-from pydantic.fields import FieldInfo
+from pydantic import BaseModel, Field
 
-from app.utils import timestamp, current_year_month
+from app.utils import timestamp
 from uuid import uuid4
 
 
@@ -42,29 +40,6 @@ class Transaction(BaseModel):
             self.category = point_to_cat.get(self.point)
 
 
-def partial_model(model: Type[BaseModel]):
-    """
-    Decorator, to make existing models, all optional, not too useul here.
-    :param model:
-    :return:
-    """
-    def make_field_optional(field: FieldInfo, default: Any = None) -> tuple[Any, FieldInfo]:
-        new = deepcopy(field)
-        new.default = default
-        new.annotation = Optional[field.annotation]  # type: ignore
-        return new.annotation, new
-    return create_model(
-        f'Partial{model.__name__}',
-        __base__=model,
-        __module__=model.__module__,
-        **{
-            field_name: make_field_optional(field_info)
-            for field_name, field_info in model.model_fields.items()
-        }
-    )
-
-
-#@partial_model
 class TransactionQuery(BaseModel):  # Transaction):
     # TODO Investigate how to make all the fields optional properly
     type: Literal["Expense", "Income", "Transfer"] | None = None

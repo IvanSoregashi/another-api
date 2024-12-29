@@ -1,9 +1,9 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-# from app.db.async_dynamo_db import DBError, DynamoDBTable, AWS
-# from app.db.aiosqlite_sql import DBError, SQLiteRepository
-from app.db.aiosqlite_sqlalchemy import SQLAlchemyRepository, DBError, DatabaseSessionManager, TransactionORM
+from app.db.aiosqlite_sqlalchemy import SQLAlchemyORMRepository, DBError, DatabaseSessionManager, \
+    SQLAlchemyCoreRepository
+from app.schemas.transactions import TransactionORM
 
 from app.models.transactions import Transaction, TransactionQuery
 from app.use_cases.transactions import TransactionService
@@ -11,7 +11,8 @@ from app.use_cases.transactions import TransactionService
 transactions_router = APIRouter(prefix="/transactions")
 
 session_manager = DatabaseSessionManager("sqlite+aiosqlite:///data.db")
-sqlite_repository = SQLAlchemyRepository(TransactionORM, session_manager)
+#sqlite_repository = SQLAlchemyORMRepository(TransactionORM, session_manager)
+sqlite_repository = SQLAlchemyCoreRepository("transactions", session_manager)
 transactions_service = TransactionService(sqlite_repository)
 
 

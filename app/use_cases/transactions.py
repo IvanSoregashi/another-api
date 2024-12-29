@@ -1,6 +1,4 @@
-from typing import Type
-
-from app.db.repository import AbstractRepository
+from app.repository.repository import AbstractRepository
 from app.models.transactions import Transaction, TransactionQuery
 
 
