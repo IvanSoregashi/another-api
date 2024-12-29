@@ -10,7 +10,7 @@ from botocore.exceptions import ClientError
 from boto3.dynamodb.conditions import Key, And
 
 
-class DynamoDBError(Exception):
+class DBError(Exception):
     pass
 
 
@@ -79,7 +79,7 @@ class DynamoDBTable:
             return response.get("Item", {})
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
-            raise DynamoDBError(f"Error putting item: {error_message}")
+            raise DBError(f"Error putting item: {error_message}")
 
     async def query_items(self, key: str, value: str) -> dict:
         """
@@ -90,7 +90,7 @@ class DynamoDBTable:
             return response.get("Items", [])
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
-            raise DynamoDBError(f"Error putting item: {error_message}")
+            raise DBError(f"Error putting item: {error_message}")
 
     async def put_item(self, item: dict) -> dict:
         """
@@ -101,7 +101,7 @@ class DynamoDBTable:
             return item
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
-            raise DynamoDBError(f"Error putting item: {error_message}")
+            raise DBError(f"Error putting item: {error_message}")
 
     async def delete_item(self, key: dict) -> None:
         """
@@ -111,7 +111,7 @@ class DynamoDBTable:
             await self.table.delete_item(Key=key)
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
-            raise DynamoDBError(f"Error putting item: {error_message}")
+            raise DBError(f"Error putting item: {error_message}")
 
     async def scan_table(self, filters: dict) -> list:
         """
@@ -124,7 +124,7 @@ class DynamoDBTable:
             return response.get("Items", [])
         except ClientError as e:
             error_message = e.response["Error"]["Message"]
-            raise DynamoDBError(f"Error putting item: {error_message}")
+            raise DBError(f"Error putting item: {error_message}")
 
 
 async def main():
