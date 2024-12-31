@@ -1,22 +1,23 @@
-import uvicorn
-from dotenv import load_dotenv
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
 
+import uvicorn
+
+from fastapi import FastAPI
+from app.dependencies import initialize_transaction_service, cleanup_transaction_service
 from app.routers.transactions import transactions_router
 
-load_dotenv(".env")
 
 # TODO will need to double check at some point precise behaviour of creating tables / connections to db
-"""
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # TODO: Modify resource management. Right now, table is called on ddb instance every request
-    aws = AWS()
+    await initialize_transaction_service()
     yield
-    await aws.cleanup()
-"""
+    await cleanup_transaction_service()
 
-app = FastAPI()  # (lifespan=lifespan)
+
+app = FastAPI(lifespan=lifespan)
+
 app.include_router(transactions_router)
 
 if __name__ == "__main__":
