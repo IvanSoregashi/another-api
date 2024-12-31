@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.db.aiosqlite_sqlalchemy import Base
+from app.schemas.sqlalchemy_base import Base
 
 
 class TransactionORM(Base):
