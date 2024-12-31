@@ -3,6 +3,10 @@ from app.models.transactions import Transaction, TransactionQuery
 
 
 class TransactionService:
+    """
+    Is this even neccessary?
+    Service class that accepts repository and calls it's CRUD methods.
+    """
     def __init__(self, transactions_repo: AbstractRepository):
         self.transactions_repo: AbstractRepository = transactions_repo
 
