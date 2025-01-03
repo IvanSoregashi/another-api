@@ -5,7 +5,7 @@ from app.use_cases.transactions import TransactionService
 
 # AWS Imports
 from app.db.async_dynamo_db import AWS, DBError
-from app.repository.dynamo_db import DynamoDBRepository
+from app.repository.async_dynamo_db import DynamoDBRepository
 
 # Async Alchemy
 from app.schemas.transactions import TransactionORM
