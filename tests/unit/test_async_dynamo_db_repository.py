@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, call, AsyncMock, Mock
+from unittest.mock import AsyncMock, Mock
 
 from boto3.dynamodb.conditions import Key
 from app.repository.async_dynamo_db import DynamoDBRepository

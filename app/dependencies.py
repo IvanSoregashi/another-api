@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import Depends
 
-from app.use_cases.transactions import TransactionService
+from app.services.transactions import TransactionService
 
 # AWS Imports
 from app.db.async_dynamo_db import AWS, DBError
