@@ -71,7 +71,27 @@ async def create_transaction(
         transaction: Transaction,
 ):
     try:
+        item = await service.post(transaction)
+        return item
+    except DBError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@transactions_router.put(
+    "",
+    tags=["Transactions"],
+    response_model=Transaction,
+    status_code=201,
+    summary="Report transaction"
+)
+async def update_transaction(
+        service: TransactionServiceDependancy,
+        transaction: Transaction,
+):
+    try:
         item = await service.put(transaction)
+        if not item:
+            raise HTTPException(status_code=500, detail="Could not complete update operation")
         return item
     except DBError as e:
         raise HTTPException(status_code=500, detail=str(e))

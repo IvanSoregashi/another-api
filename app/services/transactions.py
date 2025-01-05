@@ -5,7 +5,7 @@ from app.models.transactions import Transaction, TransactionQuery
 class TransactionService:
     """
     Is this even neccessary?
-    Service class that accepts repository and calls it's CRUD methods.
+    Service class that accepts repository and calls its CRUD methods.
     """
     def __init__(self, transactions_repo: AbstractRepository):
         self.transactions_repo: AbstractRepository = transactions_repo
@@ -16,6 +16,10 @@ class TransactionService:
 
     async def query(self, month: str) -> list:
         return await self.transactions_repo.query_items("month", month)
+
+    async def post(self, transaction: Transaction) -> dict:
+        transaction = transaction.model_dump()
+        return await self.transactions_repo.post_item(transaction)
 
     async def put(self, transaction: Transaction) -> dict:
         transaction = transaction.model_dump()

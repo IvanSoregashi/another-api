@@ -46,6 +46,17 @@ class DynamoDBRepository(AbstractRepository):
             error_message = e.response["Error"]["Message"]
             raise DBError(f"Error putting item: {error_message}")
 
+    async def post_item(self, item: dict) -> dict:
+        """
+        Insert or overwrite an item.
+        """
+        try:
+            await self.table.put_item(Item=item)
+            return item
+        except ClientError as e:
+            error_message = e.response["Error"]["Message"]
+            raise DBError(f"Error putting item: {error_message}")
+
     async def put_item(self, item: dict) -> dict:
         """
         Insert or overwrite an item.

@@ -26,7 +26,7 @@ class SQLAlchemyCoreRepository(AbstractRepository):
             result = await connection.execute(query)
             return result.all()
 
-    async def put_item(self, item: dict) -> dict:
+    async def post_item(self, item: dict) -> dict:
         async with self._session_manager.connect() as connection:
             statement = text(
                 f"""INSERT INTO {self.table} 
@@ -35,6 +35,30 @@ class SQLAlchemyCoreRepository(AbstractRepository):
                 ( :transaction_id, :month, :datetime, 
                 :type, :account, :currency, :amount, 
                 :category, :point, :item, :comment )
+                RETURNING *;"""
+            )
+            statement = statement.bindparams(**item)
+            result = await connection.execute(statement)
+            await connection.commit()
+            return result.one_or_none()
+
+    async def put_item(self, item: dict) -> dict:
+        async with self._session_manager.connect() as connection:
+            statement = text(
+                f"""UPDATE {self.table}
+                SET
+                    month = :month,
+                    datetime = :datetime,
+                    type = :type,
+                    account = :account,
+                    currency = :currency,
+                    amount = :amount,
+                    category = :category,
+                    point = :point,
+                    item = :item,
+                    comment = :comment
+                WHERE
+                    transaction_id = :transaction_id
                 RETURNING *;"""
             )
             statement = statement.bindparams(**item)

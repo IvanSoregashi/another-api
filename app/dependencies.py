@@ -14,20 +14,21 @@ from app.repository.sqlalchemy_orm import SQLAlchemyORMRepository
 from app.repository.sqlalchemy_core import SQLAlchemyCoreRepository
 
 from dotenv import load_dotenv
-load_dotenv(".env")
+load_dotenv("../.env")
 
 transaction_service: TransactionService = None
 aws: AWS = None
 
 
 async def initialize_transaction_service():
+    load_dotenv(".env")
     global transaction_service
     global aws
-    # aws = AWS()
-    # transaction_repository = await DynamoDBRepository.initialize(aws, "Transactions")
+    aws = AWS()
+    transaction_repository = await DynamoDBRepository.initialize(aws, "Transactions")
 
     session_manager = DatabaseSessionManager("sqlite+aiosqlite:///data.db")
-    transaction_repository = SQLAlchemyORMRepository(TransactionORM, session_manager)
+    # transaction_repository = SQLAlchemyORMRepository(TransactionORM, session_manager)
     # transaction_repository = SQLAlchemyCoreRepository("transactions", session_manager)
 
     transaction_service = TransactionService(transaction_repository)
@@ -35,7 +36,9 @@ async def initialize_transaction_service():
 
 async def cleanup_transaction_service():
     global aws
+    print("Enter cleanup")
     if aws:
+        print("Engage cleanup")
         await aws.cleanup()
 
 

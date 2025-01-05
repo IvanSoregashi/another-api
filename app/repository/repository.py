@@ -12,6 +12,10 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    async def post_item(self, item: dict) -> dict:
+        raise NotImplementedError
+
+    @abstractmethod
     async def put_item(self, item: dict) -> dict:
         raise NotImplementedError
 
