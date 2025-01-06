@@ -20,16 +20,20 @@ transaction_service: TransactionService = None
 aws: AWS = None
 
 
-async def initialize_transaction_service():
+async def initialize_transaction_service(database: str):
     load_dotenv(".env")
     global transaction_service
-    global aws
-    aws = AWS()
-    transaction_repository = await DynamoDBRepository.initialize(aws, "Transactions")
-
-    session_manager = DatabaseSessionManager("sqlite+aiosqlite:///data.db")
-    # transaction_repository = SQLAlchemyORMRepository(TransactionORM, session_manager)
-    # transaction_repository = SQLAlchemyCoreRepository("transactions", session_manager)
+    match database:
+        case "dynamodb":
+            global aws
+            aws = AWS()
+            transaction_repository = await DynamoDBRepository.initialize(aws, "Transactions")
+        case "sql-orm":
+            session_manager = DatabaseSessionManager("sqlite+aiosqlite:///data.db")
+            transaction_repository = SQLAlchemyORMRepository(TransactionORM, session_manager)
+        case "sql-core":
+            session_manager = DatabaseSessionManager("sqlite+aiosqlite:///data.db")
+            transaction_repository = SQLAlchemyCoreRepository("transactions", session_manager)
 
     transaction_service = TransactionService(transaction_repository)
 

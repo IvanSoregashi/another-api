@@ -58,6 +58,12 @@ class TestDynamoDBTable:
         mock_repo.table.query.assert_awaited_once_with(KeyConditionExpression=Key("month").eq("TEST"))
         assert response == []
 
+    async def test_post_item(self, mock_repo):
+        response = await mock_repo.post_item({"month": "TEST"})
+
+        mock_repo.table.put_item.assert_awaited_once_with(Item={"month": "TEST"})
+        assert response == {"month": "TEST"}
+
     async def test_put_item(self, mock_repo):
         response = await mock_repo.put_item({"month": "TEST"})
 

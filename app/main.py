@@ -11,7 +11,7 @@ from app.routers.transactions import transactions_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # TODO: Modify resource management. Right now, table is called on ddb instance every request
-    await initialize_transaction_service()
+    await initialize_transaction_service("sql-orm")
     yield
     await cleanup_transaction_service()
 

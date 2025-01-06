@@ -43,6 +43,16 @@ async def test_query_transactions(service, repo):
     assert result == {"test": "test value"}
 
 
+async def test_post_transaction(service, repo):
+    repo.post_item.return_value = {"test": "test value"}
+
+    model = Transaction.model_validate({"type": "test", "account": "Kaspi", "amount": 95, "point": "Small"})
+    result = await service.post(model)
+
+    repo.post_item.assert_awaited_once_with(model.model_dump())
+    assert result == {"test": "test value"}
+
+
 async def test_put_transaction(service, repo):
     repo.put_item.return_value = {"test": "test value"}
 

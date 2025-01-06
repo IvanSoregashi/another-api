@@ -224,13 +224,13 @@ def test_create_correct_transaction(test_service):
         "comment": None
     }
 
-    test_service.put.return_value = data
+    test_service.post.return_value = data
 
     response = client.post("/transactions", json=data)
 
     model = Transaction.model_validate(data)
 
-    test_service.put.assert_awaited_once_with(model)
+    test_service.post.assert_awaited_once_with(model)
 
     assert response.status_code == 201
     assert response.json() == {
@@ -263,14 +263,77 @@ def test_create_incorrect_transaction(test_service):
         "comment": None
     }
 
-    test_service.put.return_value = data
+    test_service.post.return_value = data
 
     response = client.post("/transactions", json=data)
+
+    test_service.post.assert_not_awaited()
+
+    assert response.status_code == 422
+#    assert response.json() == {}
+
+
+def test_correct_update_transaction(test_service):
+    data = {
+        "month": "2024-12",
+        "transaction_id": "f1bf8fed-8cb5-4403-a3a1-7b2df262182b",
+        "datetime": "2024-12-25T05:06:04.288542+00:00",
+        "type": "Transfer",
+        "account": "Kaspi",
+        "currency": "KZT",
+        "amount": 100,
+        "category": "Groceries",
+        "point": "Small",
+        "item": None,
+        "comment": None
+    }
+
+    test_service.put.return_value = data
+
+    response = client.put("/transactions", json=data)
+
+    model = Transaction.model_validate(data)
+
+    test_service.put.assert_awaited_once_with(model)
+
+    assert response.status_code == 201
+    assert response.json() == {
+        "month": "2024-12",
+        "transaction_id": "f1bf8fed-8cb5-4403-a3a1-7b2df262182b",
+        "datetime": "2024-12-25T05:06:04.288542+00:00",
+        "type": "Transfer",
+        "account": "Kaspi",
+        "currency": "KZT",
+        "amount": "100",
+        "category": "Groceries",
+        "point": "Small",
+        "item": None,
+        "comment": None
+    }
+
+
+def test_incorrect_update_transaction(test_service):
+    data = {
+        "month": "2024-12",
+        "transactddionid": "f1bf8fed-8cb5-4403-a3a1-7b2df262182b",
+        "datetime": "2024-12-25T05:06:04.288542+00:00",
+        "tydpe": "Transfer",
+        "account": "Kaspi",
+        "currency": "KZT",
+        "amount": 100,
+        "category": "Groceries",
+        "point": "Small",
+        "item": None,
+        "comment": None
+    }
+
+    test_service.put.return_value = data
+
+    response = client.put("/transactions", json=data)
 
     test_service.put.assert_not_awaited()
 
     assert response.status_code == 422
-#    assert response.json() == {}
 
 
 def test_delete_transaction(test_service):
