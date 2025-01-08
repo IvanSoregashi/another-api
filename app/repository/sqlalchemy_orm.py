@@ -18,6 +18,7 @@ class SQLAlchemyORMRepository(AbstractRepository):
         self.pk = primary_key_names[0]
 
     async def scan_table(self, filters: dict) -> list:
+        # TODO make use of filters.
         async with self._session_manager.session() as session:
             query = select(self._model)
             result = await session.execute(query)
@@ -48,12 +49,12 @@ class SQLAlchemyORMRepository(AbstractRepository):
 
     async def get_item(self, keys: dict) -> dict:
         async with self._session_manager.session() as session:
-            result = await session.get(self._model, keys["transaction_id"])
+            result = await session.get(self._model, keys[self.pk])
             return result
 
     async def delete_item(self, keys: dict) -> None:
         async with self._session_manager.session() as session:
-            result = await session.get(self._model, keys["transaction_id"])
+            result = await session.get(self._model, keys[self.pk])
             if result:
                 await session.delete(result)
                 await session.commit()

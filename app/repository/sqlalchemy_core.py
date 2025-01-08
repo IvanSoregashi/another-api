@@ -10,6 +10,7 @@ class SQLAlchemyCoreRepository(AbstractRepository):
         self._session_manager = session_manager
 
     async def scan_table(self, filters: dict) -> list:
+        # TODO make use of filters.
         async with self._session_manager.connect() as connection:
             # self.table is not user input
             query = text(f"SELECT * FROM {self.table};")
