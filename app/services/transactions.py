@@ -1,5 +1,5 @@
 from app.repository.repository import AbstractRepository
-from app.models.transactions import Transaction, TransactionQuery
+from app.core.models import Transaction, TransactionQuery
 
 
 class TransactionService:

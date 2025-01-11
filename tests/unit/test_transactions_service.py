@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from app.models.transactions import Transaction, TransactionQuery
+from app.core.models import Transaction, TransactionQuery
 from app.services.transactions import TransactionService
 
 

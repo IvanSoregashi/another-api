@@ -1,5 +1,6 @@
 /.env
 /.venv/
 /.idea/
+/certs/
 **/__pycache__/*
 *.db

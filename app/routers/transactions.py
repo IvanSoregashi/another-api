@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Query
 
 from app.dependencies import TransactionServiceDependancy, DBError
-from app.models.transactions import Transaction, TransactionQuery
+from app.core.models import Transaction, TransactionQuery
 
 transactions_router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
