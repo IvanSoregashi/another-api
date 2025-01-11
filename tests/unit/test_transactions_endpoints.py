@@ -4,7 +4,7 @@ from fastapi.testclient import TestClient
 
 from app.main import app
 from app.dependencies import get_transaction_service
-from app.core.models import TransactionQuery, Transaction
+from app.core.models.transactions import TransactionQuery, Transaction
 
 client = TestClient(app)
 
