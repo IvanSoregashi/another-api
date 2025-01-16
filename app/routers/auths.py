@@ -1,14 +1,20 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, status
 
 from app.core.models.users import UserSchema, Token
-from app.services.auths import encode_jwt
+from app.services.auths import encode_jwt, login
 
 auth_router = APIRouter(prefix="/auths", tags=["Auth"])
 
 
-def validate_user_auth():
-    pass
+def validate_user_auth(username: str, password: str):
+    unauthed_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid username or password",
+    )
+    item = UserSchema(username=username, password=password)
+    print(item)
+    return item
 
 
 @auth_router.post("/login", response_model=Token, summary="Login, whatever")

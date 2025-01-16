@@ -2,6 +2,7 @@ from datetime import timedelta, datetime, UTC
 
 import bcrypt
 import jwt
+# from cryptography.hazmat.primitives import serialization
 from app.core.config import settings
 from app.core.models.users import UserSchema
 
@@ -18,7 +19,7 @@ def login(user: UserSchema):
 
 def encode_jwt(
         payload: dict,
-        key: str = settings.auth_jwt.public_key_path.read_text(),
+        key: str = settings.auth_jwt.private_key_path.read_text(),
         algorithm: str = settings.auth_jwt.algorithm,
         expire_minutes: int = settings.auth_jwt.access_token_expire_minutes,
         expire_timedelta: timedelta | None = None,
@@ -31,10 +32,13 @@ def encode_jwt(
     else:
         expire = now + timedelta(minutes=expire_minutes)
 
+    # key = serialization.load_pem_private_key(key.encode(), password=None)
+
     to_encode.update(
-        iat=now,
-        exp=expire,
+        iat=int(now.timestamp()),
+        exp=int(expire.timestamp()),
     )
+    print(to_encode, key, algorithm)
     encoded = jwt.encode(to_encode, key, algorithm=algorithm)
     return encoded
 
