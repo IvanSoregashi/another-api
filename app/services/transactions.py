@@ -1,11 +1,11 @@
-from app.repository.repository import AbstractRepository
-from app.core.models.transactions import Transaction, TransactionQuery
+from app.async_repository.repository import AbstractRepository
+from app.core.models.transactions import Transaction, TransactionQuery, TranferTransaction
 
 
 class TransactionService:
     """
     Is this even neccessary?
-    Service class that accepts repository and calls its CRUD methods.
+    Service class that accepts async_repository and calls its CRUD methods.
     """
     def __init__(self, transactions_repo: AbstractRepository):
         self.transactions_repo: AbstractRepository = transactions_repo
@@ -30,3 +30,6 @@ class TransactionService:
 
     async def delete(self, month: str, transaction_id: str) -> None:
         return await self.transactions_repo.delete_item({"month": month, "transaction_id": transaction_id})
+
+    async def transfer(self, transaction: TranferTransaction):
+        pass
