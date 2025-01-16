@@ -4,7 +4,7 @@ from sqlalchemy import select, insert, update
 
 from app.db.async_sqlalchemy import DatabaseSessionManager
 from app.schemas.sqlalchemy_base import Base
-from app.repository.repository import AbstractRepository
+from app.async_repository.repository import AbstractRepository
 
 
 class SQLAlchemyORMRepository(AbstractRepository):

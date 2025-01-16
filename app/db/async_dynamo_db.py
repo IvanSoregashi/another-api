@@ -1,12 +1,10 @@
 import os
 import contextlib
-# from functools import reduce
 from typing import Self
 
 
 import aioboto3
 # from botocore.exceptions import ClientError
-# from boto3.dynamodb.conditions import Key, And
 
 
 class DBError(Exception):

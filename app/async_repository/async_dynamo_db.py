@@ -4,7 +4,7 @@ from boto3.dynamodb.conditions import Key, And
 from botocore.exceptions import ClientError
 
 from app.db.async_dynamo_db import DBError, AWS
-from app.repository.repository import AbstractRepository
+from app.async_repository.repository import AbstractRepository
 
 
 class DynamoDBRepository(AbstractRepository):

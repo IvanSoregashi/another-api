@@ -1,10 +1,9 @@
 from typing import Self
 
 import aiosql
-
-from app.repository.repository import AbstractRepository
 import aiosqlite
 
+from app.async_repository.repository import AbstractRepository
 from app.core.models.transactions import Transaction
 
 

@@ -1,7 +1,7 @@
 from sqlalchemy import text
 
 from app.db.async_sqlalchemy import DatabaseSessionManager
-from app.repository.repository import AbstractRepository
+from app.async_repository.repository import AbstractRepository
 
 
 class SQLAlchemyCoreRepository(AbstractRepository):
