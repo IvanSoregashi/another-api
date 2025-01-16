@@ -5,13 +5,13 @@ from app.services.transactions import TransactionService
 
 # AWS Imports
 from app.db.async_dynamo_db import AWS, DBError
-from app.repository.async_dynamo_db import DynamoDBRepository
+from app.async_repository.async_dynamo_db import DynamoDBRepository
 
 # Async Alchemy
 from app.schemas.transactions import TransactionORM
 from app.db.async_sqlalchemy import DatabaseSessionManager, DBError
-from app.repository.sqlalchemy_orm import SQLAlchemyORMRepository
-from app.repository.sqlalchemy_core import SQLAlchemyCoreRepository
+from app.async_repository.sqlalchemy_orm import SQLAlchemyORMRepository
+from app.async_repository.sqlalchemy_core import SQLAlchemyCoreRepository
 
 from dotenv import load_dotenv
 load_dotenv("../.env")
