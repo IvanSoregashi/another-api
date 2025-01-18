@@ -2,13 +2,19 @@ import contextlib
 from typing import AsyncIterator, Any
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine, AsyncConnection, AsyncSession
 
+from app.core.config import settings
+
 
 class DBError(Exception):
     pass
 
 
 class DatabaseSessionManager:
-    def __init__(self, host: str, engine_kwargs: dict[str, Any] = {}):
+    def __init__(
+            self,
+            host: str = settings.db.path,
+            engine_kwargs: dict[str, Any] = {}
+    ):
         self._engine = create_async_engine(host, **engine_kwargs)
         self._sessionmaker = async_sessionmaker(expire_on_commit=False, autocommit=False, bind=self._engine)
 
@@ -46,3 +52,7 @@ class DatabaseSessionManager:
             raise
         finally:
             await session.close()
+
+    async def run_sync(self, whatever):
+        async with self.connect() as conn:
+            await conn.run_sync(whatever)

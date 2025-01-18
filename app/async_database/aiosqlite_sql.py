@@ -27,9 +27,9 @@ class SQLiteRepository(AbstractRepository):
         async with aiosqlite.connect(file) as db:
             db.row_factory = aiosqlite.Row
             yield cls(db)
-        # db = await aiosqlite.connect(file)
-        # db.row_factory = aiosqlite.Row
-        # yield cls(db)
+        # async_database = await aiosqlite.connect(file)
+        # async_database.row_factory = aiosqlite.Row
+        # yield cls(async_database)
 
     async def scan_table(self, filters: dict) -> list:
         results = await self.queries.get_all_transactions(self.db)

@@ -4,10 +4,10 @@ from fastapi import APIRouter, HTTPException, Query
 from app.dependencies import TransactionServiceDependancy, DBError
 from app.core.models.transactions import Transaction, TransactionQuery
 
-transactions_router = APIRouter(prefix="/transactions", tags=["Transactions"])
+router = APIRouter(prefix="/transactions", tags=["Transactions"])
 
 
-@transactions_router.get(
+@router.get(
     "",
     response_model=list[Transaction],
     summary="Get all transactions, optionally filtered"
@@ -23,7 +23,7 @@ async def scan_all_transactions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@transactions_router.get(
+@router.get(
     "/{month}",
     tags=["Transactions"],
     response_model=list[Transaction],
@@ -40,7 +40,7 @@ async def query_monthly_transactions(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@transactions_router.get(
+@router.get(
     "/{month}/{transaction_id}",
     tags=["Transactions"],
     response_model=Transaction,
@@ -59,7 +59,7 @@ async def get_single_transaction(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@transactions_router.post(
+@router.post(
     "",
     tags=["Transactions"],
     response_model=Transaction,
@@ -77,7 +77,7 @@ async def create_transaction(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@transactions_router.put(
+@router.put(
     "",
     tags=["Transactions"],
     response_model=Transaction,
@@ -97,7 +97,7 @@ async def update_transaction(
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@transactions_router.delete(
+@router.delete(
     "/{month}/{transaction_id}",
     tags=["Transactions"],
     summary="Delete a single transaction",

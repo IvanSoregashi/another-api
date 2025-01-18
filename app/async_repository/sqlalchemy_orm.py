@@ -2,7 +2,7 @@ from typing import Type
 
 from sqlalchemy import select, insert, update
 
-from app.db.async_sqlalchemy import DatabaseSessionManager
+from app.async_database.sqlalchemy import DatabaseSessionManager
 from app.schemas.sqlalchemy_base import Base
 from app.async_repository.repository import AbstractRepository
 

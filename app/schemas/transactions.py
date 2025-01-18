@@ -15,5 +15,5 @@ class TransactionORM(Base):
     amount: Mapped[float]
     category: Mapped[str]
     point: Mapped[str]
-    item: Mapped[str]
-    comment: Mapped[str]
+    item: Mapped[str | None]
+    comment: Mapped[str | None]

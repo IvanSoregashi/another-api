@@ -1,6 +1,6 @@
 from sqlalchemy import text
 
-from app.db.async_sqlalchemy import DatabaseSessionManager
+from app.async_database.sqlalchemy import DatabaseSessionManager
 from app.async_repository.repository import AbstractRepository
 
 
