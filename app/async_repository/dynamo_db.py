@@ -3,7 +3,7 @@ from functools import reduce
 from boto3.dynamodb.conditions import Key, And
 from botocore.exceptions import ClientError
 
-from app.db.async_dynamo_db import DBError, AWS
+from app.async_database.async_dynamo_db import DBError, AWS
 from app.async_repository.repository import AbstractRepository
 
 

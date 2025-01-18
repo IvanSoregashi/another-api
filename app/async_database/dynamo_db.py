@@ -1,6 +1,7 @@
 import os
 import contextlib
 from typing import Self
+from app.core.config import settings
 
 
 import aioboto3
@@ -24,9 +25,9 @@ class AWS:
 
     def __init__(self, aws_access_key_id=None, aws_secret_access_key=None, region_name=None):
         if self.instance: return
-        self.aws_access_key_id = aws_access_key_id or os.getenv("AWS_ACCESS_KEY_ID")
-        self.aws_secret_access_key = aws_secret_access_key or os.getenv("AWS_SECRET_ACCESS_KEY")
-        self.region_name = region_name or os.getenv("REGION_NAME")
+        self.aws_access_key_id = aws_access_key_id or settings.aws.aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key or settings.aws.aws_secret_access_key
+        self.region_name = region_name or settings.aws.region_name
 
         if not self.aws_access_key_id or not self.aws_secret_access_key or not self.region_name:
             raise ValueError("AWS credentials and region must be provided.")

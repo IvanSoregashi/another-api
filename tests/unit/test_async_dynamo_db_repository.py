@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, Mock
 
 from boto3.dynamodb.conditions import Key
-from app.async_repository.async_dynamo_db import DynamoDBRepository
+from app.async_repository.dynamo_db import DynamoDBRepository
 
 
 @pytest.fixture(scope="function")
